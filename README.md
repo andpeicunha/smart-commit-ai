@@ -7,5 +7,5 @@ Um gerador de mensagens de commit inteligente usando IA.
 Instale com um comando:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/seu-usuario/commit-ai/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/andpeicunha/smart-commit-ai/master/install.sh | bash
 ```
