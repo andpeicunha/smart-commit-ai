@@ -7,29 +7,52 @@ BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}📦 Instalando gerador de commits...${NC}"
+# Função para mostrar o uso do script
+show_usage() {
+    echo -e "${BLUE}Uso:${NC} $0 -s <shell>"
+    echo -e "  -s: Especifique seu shell (${GREEN}bash${NC} ou ${GREEN}zsh${NC})"
+    echo
+    echo -e "Exemplo:"
+    echo -e "  ${YELLOW}./install.sh -s bash${NC}"
+    echo -e "  ${YELLOW}./install.sh -s zsh${NC}"
+    exit 1
+}
 
-# Seleção obrigatória do shell
-echo -e "${YELLOW}Qual shell você usa?${NC}"
-echo "1) Bash"
-echo "2) Zsh"
-read -p "Escolha (1/2): " shell_choice
+# Processar argumentos da linha de comando
+while getopts "s:" opt; do
+    case $opt in
+        s)
+            shell_type=$OPTARG
+            ;;
+        *)
+            show_usage
+            ;;
+    esac
+done
 
-case $shell_choice in
-    1)
+# Verificar se o shell foi especificado
+if [ -z "$shell_type" ]; then
+    echo -e "${RED}❌ Por favor, especifique o tipo de shell usando -s${NC}"
+    show_usage
+fi
+
+# Configurar o shell baseado no parâmetro
+case $shell_type in
+    bash)
         SHELL_RC="$HOME/.bashrc"
         SHELL_NAME="Bash"
         ;;
-    2)
+    zsh)
         SHELL_RC="$HOME/.zshrc"
         SHELL_NAME="Zsh"
         ;;
     *)
-        echo -e "${RED}❌ Opção inválida. Por favor, execute o script novamente e escolha 1 para Bash ou 2 para Zsh.${NC}"
-        exit 1
+        echo -e "${RED}❌ Shell inválido. Use 'bash' ou 'zsh'${NC}"
+        show_usage
         ;;
 esac
 
+echo -e "${BLUE}📦 Instalando gerador de commits...${NC}"
 echo -e "${BLUE}🛠️  Configurando para $SHELL_NAME ($SHELL_RC)${NC}"
 
 # Criar diretório de scripts se não existir
