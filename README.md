@@ -24,21 +24,15 @@ Gerador inteligente de mensagens de commit usando IA para criar commits padroniz
 curl -fsSL https://raw.githubusercontent.com/andpeicunha/smart-commit-ai/master/install.sh -o install.sh
 ```
 
-2. Torne o script executável:
+2. Torne o script executável e faça a instalação:
 
 ```bash
-chmod +x install.sh
-```
-
-3. Execute o script para instalação:
-
-```bash
-./install.sh
+chmod +x install.sh & ./install.sh
 ```
 
 _Ele vai perguntar qual shell você usa, se o Bash ou ZSH, basta seguir as instruções._
 
-4. Após a instalação, você pode remover o script:
+3. Após a instalação, você pode remover o script:
 
 ```bash
 rm install.sh

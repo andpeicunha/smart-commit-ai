@@ -7,52 +7,30 @@ BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Função para mostrar o uso do script
-show_usage() {
-    echo -e "${BLUE}Uso:${NC} $0 -s <shell>"
-    echo -e "  -s: Especifique seu shell (${GREEN}bash${NC} ou ${GREEN}zsh${NC})"
-    echo
-    echo -e "Exemplo:"
-    echo -e "  ${YELLOW}./install.sh -s bash${NC}"
-    echo -e "  ${YELLOW}./install.sh -s zsh${NC}"
-    exit 1
-}
+echo -e "${BLUE}📦 Instalando gerador de commits...${NC}"
 
-# Processar argumentos da linha de comando
-while getopts "s:" opt; do
-    case $opt in
-        s)
-            shell_type=$OPTARG
-            ;;
-        *)
-            show_usage
-            ;;
-    esac
-done
+# Perguntar qual shell o usuário usa
+echo -e "${YELLOW}Qual shell você usa?${NC}"
+echo -e "1) ${GREEN}Bash${NC}"
+echo -e "2) ${GREEN}Zsh${NC}"
+read -p "Escolha (1/2): " shell_choice
 
-# Verificar se o shell foi especificado
-if [ -z "$shell_type" ]; then
-    echo -e "${RED}❌ Por favor, especifique o tipo de shell usando -s${NC}"
-    show_usage
-fi
-
-# Configurar o shell baseado no parâmetro
-case $shell_type in
-    bash)
+# Configurar o shell baseado na escolha
+case $shell_choice in
+    1)
         SHELL_RC="$HOME/.bashrc"
         SHELL_NAME="Bash"
         ;;
-    zsh)
+    2)
         SHELL_RC="$HOME/.zshrc"
         SHELL_NAME="Zsh"
         ;;
     *)
-        echo -e "${RED}❌ Shell inválido. Use 'bash' ou 'zsh'${NC}"
-        show_usage
+        echo -e "${RED}❌ Opção inválida. Por favor, escolha 1 para Bash ou 2 para Zsh.${NC}"
+        exit 1
         ;;
 esac
 
-echo -e "${BLUE}📦 Instalando gerador de commits...${NC}"
 echo -e "${BLUE}🛠️  Configurando para $SHELL_NAME ($SHELL_RC)${NC}"
 
 # Criar diretório de scripts se não existir
