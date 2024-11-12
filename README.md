@@ -4,9 +4,11 @@ Gerador inteligente de mensagens de commit usando IA para criar commits padroniz
 
 ## 🚀 Recursos
 
+- Não precisa de Key de nenhum IA
+- Roda 100% local
 - Gera mensagens de commit baseadas no diff das alterações
 - Segue convenções de commit (Conventional Commits)
-- Suporta múltiplos tipos de commit (feat, fix, docs, etc)
+- Suporta múltiplos tipos de commit (feat, fix, docs, etc) com emojis
 - Analisa o contexto do projeto para gerar mensagens mais relevantes
 - Integração fácil com seu fluxo de trabalho git
 - Diferentes estilos de mensagem para tornar seus commits mais divertidos
@@ -46,7 +48,7 @@ rm install.sh
 3. Execute o comando:
 
 ```bash
-gsc                # Estilo padrão
+gsc               # Estilo padrão
 gsc --ironico     # Mensagem com toque de humor
 gsc --nerd        # Referências geek
 gsc --poeta       # Estilo poético
@@ -68,10 +70,10 @@ gsc --list
 
 Você pode personalizar o tom das suas mensagens de commit usando diferentes estilos:
 
-- **Padrão**: Mensagens profissionais e diretas
+- **Padrão**: Mensagens profissionais e diretas [**default**]
 - **Irônico**: Adiciona um toque de humor às mensagens
 - **Nerd**: Usa referências da cultura geek e tech
-- **Poeta**: Mensagens com um toque lírico e elegante
+- **Poeta**: Mensagens com um toque elegante
 - **Épico**: Tom dramático e heroico
 
 ## 📝 Formato das mensagens
@@ -107,7 +109,7 @@ Contribuições são sempre bem-vindas! Sinta-se à vontade para:
 
 ## 📄 Licença
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+Este projeto está sob a licença MIT.
 
 ## 🐛 Encontrou um bug?
 
