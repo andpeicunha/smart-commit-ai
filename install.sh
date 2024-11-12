@@ -1,27 +1,18 @@
+#!/bin/bash
+
+# Cores para output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
-NC='\033[0m' 
+NC='\033[0m' # No Color
 
 echo -e "${BLUE}📦 Instalando gerador de commits...${NC}"
 
-detect_default_shell() {
-    local shell_path=$(echo $SHELL)
-    if [[ $shell_path == *"zsh"* ]]; then
-        echo "zsh"
-    elif [[ $shell_path == *"bash"* ]]; then
-        echo "bash"
-    else
-        echo "unknown"
-    fi
-}
-
-DEFAULT_SHELL=$(detect_default_shell)
-
+# Seleção obrigatória do shell
 echo -e "${YELLOW}Qual shell você usa?${NC}"
-echo -e "1) Bash ${DEFAULT_SHELL == 'bash' ? '(detectado)' : ''}"
-echo -e "2) Zsh ${DEFAULT_SHELL == 'zsh' ? '(detectado)' : ''}"
+echo "1) Bash"
+echo "2) Zsh"
 read -p "Escolha (1/2): " shell_choice
 
 case $shell_choice in
@@ -34,25 +25,21 @@ case $shell_choice in
         SHELL_NAME="Zsh"
         ;;
     *)
-        echo -e "${RED}❌ Opção inválida. Usando shell detectado: $DEFAULT_SHELL${NC}"
-        if [ "$DEFAULT_SHELL" == "zsh" ]; then
-            SHELL_RC="$HOME/.zshrc"
-            SHELL_NAME="Zsh"
-        else
-            SHELL_RC="$HOME/.bashrc"
-            SHELL_NAME="Bash"
-        fi
+        echo -e "${RED}❌ Opção inválida. Por favor, execute o script novamente e escolha 1 para Bash ou 2 para Zsh.${NC}"
+        exit 1
         ;;
 esac
 
 echo -e "${BLUE}🛠️  Configurando para $SHELL_NAME ($SHELL_RC)${NC}"
 
+# Criar diretório de scripts se não existir
 SCRIPTS_DIR="$HOME/scripts"
 if [ ! -d "$SCRIPTS_DIR" ]; then
     echo -e "${BLUE}📁 Criando diretório $SCRIPTS_DIR...${NC}"
     mkdir -p "$SCRIPTS_DIR"
 fi
 
+# Download do arquivo Python diretamente do GitHub
 COMMIT_GENERATOR="$SCRIPTS_DIR/commit-generator.py"
 echo -e "${BLUE}📝 Baixando script em $COMMIT_GENERATOR...${NC}"
 
@@ -63,16 +50,20 @@ if ! curl -fsSL "$GITHUB_RAW_URL" -o "$COMMIT_GENERATOR"; then
     exit 1
 fi
 
+# Tornar o script executável
 chmod +x "$COMMIT_GENERATOR"
 
+# Verificar se python3 está instalado
 if ! command -v python3 &> /dev/null; then
     echo -e "${RED}❌ Python 3 não está instalado. Por favor, instale-o primeiro.${NC}"
     exit 1
 fi
 
+# Instalar dependências do Python
 echo -e "${BLUE}📦 Instalando dependências Python...${NC}"
 pip3 install g4f --quiet
 
+# Remover alias antigo se existir
 if [ -f "$SHELL_RC" ]; then
     sed -i '/alias gsc=/d' "$SHELL_RC"
 else
@@ -80,6 +71,7 @@ else
     touch "$SHELL_RC"
 fi
 
+# Adicionar novo alias
 echo "alias gsc='python3 $COMMIT_GENERATOR'" >> "$SHELL_RC"
 
 echo -e "${GREEN}✅ Instalação concluída!${NC}"
