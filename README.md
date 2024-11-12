@@ -30,14 +30,13 @@ curl -fsSL https://raw.githubusercontent.com/andpeicunha/smart-commit-ai/master/
 chmod +x install.sh
 ```
 
-3. Execute o script informando seu shell (bash ou zsh):
+3. Execute o script para instalação:
 
 ```bash
-./install.sh -s zsh
-
-# Caso você use o Bash, faça como indicado abaixo
-./install.sh -s bash
+./install.sh
 ```
+
+_Ele vai perguntar qual shell você usa, se o Bash ou ZSH, basta seguir as instruções._
 
 4. Após a instalação, você pode remover o script:
 
@@ -54,6 +53,8 @@ rm install.sh
 ```bash
 gsc
 ```
+
+_Caso você não conheça, esse comando `gsc` é um alias no seu shell, portanto NÃO precisa ter o git antes, basta executar dessa forma e ver a mágica acontecer_
 
 4. O script irá analisar suas alterações e sugerir uma mensagem de commit
 5. Confirme se deseja usar a mensagem sugerida
