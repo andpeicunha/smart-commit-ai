@@ -231,7 +231,12 @@ def main():
             print("\n💣 Aceitando automáticamente a mensagem de commit!")
             response = "y"
         else:
-            response = input("\nDeseja usar esta mensagem? [Y/n] ").strip().lower()
+            try:
+                response = input("\n🤔 Deseja usar esta mensagem? [Y/n] ").strip().lower()
+            except KeyboardInterrupt:
+                print("\nOperação cancelada pelo usuário.")
+                response = 'n'
+
 
         if response in ["y", "yes", ""]:
             tmp_file = os.path.expanduser("~/.git_commit_msg_tmp")
