@@ -240,6 +240,10 @@ def generate_description_format(config):
 
 
 def generate_commit_message(diff, recent_commits, style, config):
+    # Verificação antes de prosseguir com o restante do código
+    if not check_internet_connection():
+        sys.exit("🚪 Saindo por falta de conexão com a internet.")
+
     style_info = STYLES[style]
     commit_types_examples = "\n".join([f"- {type} {emoji}: descrição" for type, emoji in COMMIT_TYPES.items()])
 
@@ -326,6 +330,21 @@ def generate_commit_message(diff, recent_commits, style, config):
             return None
 
 
+def check_internet_connection():
+    try:
+        # Tentativa de conexão com um site confiável
+        response = requests.get("https://pypi.org", timeout=5)
+        # Se o código de status estiver OK (200), há conexão
+        if response.status_code == 200:
+            # print("Internet connection is available.")
+            return True
+    except requests.ConnectionError:
+        print("🦖 Sem conexão com a internet!")
+    except requests.Timeout:
+        print("O tempo de conexão expirou.")
+    return False
+
+
 def main():
     config = load_config()
     args = parse_arguments()
@@ -389,7 +408,6 @@ def main():
     else:
         print("❌ Não foi possível gerar a mensagem")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     create_default_config()
