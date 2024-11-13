@@ -24,8 +24,6 @@ Gerador inteligente de mensagens de commit usando IA para criar commits padroniz
 
 O resultado do comando `git diff` e `git log` será enviado para um serviço que fará a análise deste conteúdo para gerar a mensagens!
 
-
-
 ## 💻 Instalação
 
 1. Baixe o script de instalação:
@@ -48,6 +46,63 @@ _Ele vai perguntar qual shell você usa, se o Bash ou ZSH, basta seguir as instr
 rm install.sh
 ```
 
+## ⚙️ Configuração
+
+O **Smart Commit AI** pode ser personalizado através do arquivo `.gscrc`. Na primeira execução, um arquivo de configuração padrão será criado em seu diretório home.
+
+<!-- Você pode criar também um arquivo `.gscrc` específico para cada projeto. -->
+
+Exemplo de configuração:
+
+```json
+{
+  "commit_message": {
+    "max_length": 50,
+    "language": "en-US"
+  },
+  "description": {
+    "format": "bullets",
+    "max_bullets": 3,
+    "max_bullet_length": 100,
+    "max_paragraph_length": 300,
+    "language": "pt-BR"
+  },
+  "editor": {
+    "command": "code",
+    "args": ["--wait"],
+    "fallback": {
+      "command": "vim",
+      "args": []
+    }
+  },
+  "shell_alias": "sca"
+}
+```
+
+<br/>
+
+### Opções de configuração:
+
+- **commit_message**: Configurações da primeira linha do commit
+
+  - `max_length`: Tamanho máximo da mensagem
+  - `language`: Idioma ("en-US" ou "pt-BR")
+
+- **description**: Configurações da descrição detalhada
+
+  - `format`: Formato da descrição ("bullets" ou "paragraph")
+  - `max_bullets`: Número máximo de bullets
+  - `max_bullet_length`: Tamanho máximo de cada bullet
+  - `max_paragraph_length`: Tamanho máximo do parágrafo
+  - `language`: Idioma ("en-US" ou "pt-BR")
+
+- **editor**: Configurações do editor para edição de mensagens
+  - `command`: Comando do editor (ex: "code", "vim", "nano")
+  - `args`: Argumentos adicionais do editor
+  - `fallback`: Editor alternativo caso o principal falhe
+
+<br/>
+
 ## 🎯 Como usar
 
 1. Faça suas alterações no código
@@ -68,10 +123,19 @@ Para ver todos os estilos disponíveis:
 gsc --list
 ```
 
+Para aceitar automaticamente a mensagem de commit
+
+```bash
+gsc --accept
+```
+
 > 💡 O comando `gsc` é um alias no seu shell, portanto NÃO precisa ter o git antes, basta executar dessa forma e ver a mágica acontecer!
 
-4. O script irá analisar suas alterações e sugerir uma mensagem de commit
-5. Confirme se deseja usar a mensagem sugerida
+4. O script irá analisar suas alterações e vai sugerir uma mensagem de commit
+5. Você pode:
+   - Pressionar `ENTER` ou digitar `Y` para aceitar a mensagem
+   - Digitar `n` para cancelar
+   - Digitar `e` para editar a mensagem no seu editor configurado
 
 ## 🎨 Estilos de Commit
 
@@ -83,15 +147,21 @@ Você pode personalizar o tom das suas mensagens de commit usando diferentes est
 - **Poeta**: Mensagens com um toque elegante
 - **Épico**: Tom dramático e heroico
 
+<br/>
+
 ## 📝 Formato das mensagens
 
 As mensagens seguem o padrão:
 
-```
-type: short end clear description (max 50 caracteres em inglês)
+```bash
+type: short end clear description (max 50 caracteres, idioma configurável)
 
-- Bullet points opcionais para mais detalhes (em Português)
-- Máximo 2-3 bullets, cada um com máximo 100 caracteres
+# Formato bullets:
+- Bullet points para mais detalhes (idioma configurável)
+- Número e tamanho dos bullets configuráveis
+
+# Formato parágrafo:
+Descrição detalhada em formato de parágrafo, mencionando os arquivos alterados e mudanças específicas. O tamanho máximo e idioma são configuráveis através do arquivo .gscrc.
 ```
 
 ### Tipos de commit suportados:
