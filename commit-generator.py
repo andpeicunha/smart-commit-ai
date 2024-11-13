@@ -208,6 +208,7 @@ def generate_commit_message(diff, recent_commits, style, config):
 
         Regras gerais:
         1. Use verbos no imperativo
+        2. Para o descritivo sempre use o imperativo no passado, por exemplo, adicionei, inseri, coloquei
         2. Não termine com ponto
         3. Seja específico mas conciso
         4. Se tiver vários arquivos, mencione cada um e suas alterações
