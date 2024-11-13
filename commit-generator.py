@@ -62,7 +62,7 @@ COMMIT_TYPES = {
 DEFAULT_CONFIG = {
     "commit_message": {"max_length": 50, "language": "en-US"},
     "description": {
-        "format": "bullets",  # "bullets" ou "paragraph"
+        "format": "bullets",
         "max_bullets": 3,
         "max_bullet_length": 100,
         "max_paragraph_length": 300,
@@ -75,12 +75,12 @@ LANGUAGE_INSTRUCTIONS = {
     "en-US": {
         "commit": "Write the commit message in English",
         "desc_bullets": "Write bullet points in English",
-        "desc_paragraph": "Write a detailed description in English as a paragraph",
+        "desc_paragraph": "Write a detailed description in English as a paragraph. Do not use bullet points and write in a linear fashion, mentioning the specific files that were changed",
     },
     "pt-BR": {
         "commit": "Escreva a mensagem de commit em Português Brasil",
         "desc_bullets": "Escreva os bullet points em Português Brasil",
-        "desc_paragraph": "Escreva uma descrição detalhada usando uma estrutura de parágrafos no idioma Português Brasil. Não use bullets e escreva de forma linear, sem parecer topicos, especificando inclusive em qual arquivo foi feita a alteração",
+        "desc_paragraph": "Escreva uma descrição detalhada usando uma estrutura de parágrafos no idioma Português Brasil. Não use bullets e escreva de forma linear, sem parecer tópicos, especificando inclusive em qual arquivo foi feita a alteração",
     },
 }
 
@@ -165,14 +165,15 @@ def generate_description_format(config):
     desc_format = config["description"]["format"]
     if desc_format == "bullets":
         return f"""
-        - Adicione bullet points para mais detalhes
+        Formato da descrição:
         - Máximo {config['description']['max_bullets']} bullets
         - Cada bullet com máximo {config['description']['max_bullet_length']} caracteres"""
     else:
         return f"""
-        - Adicione uma descrição detalhada em formato de parágrafo
+        Formato da descrição:
+        - Descrição em formato de parágrafo
         - Máximo {config['description']['max_paragraph_length']} caracteres no total
-        - Use quebras de linha para melhor legibilidade"""
+        - Use quebras de linha entre parágrafos para melhor legibilidade"""
 
 
 def generate_commit_message(diff, recent_commits, style, config):
@@ -186,31 +187,36 @@ def generate_commit_message(diff, recent_commits, style, config):
         "desc_bullets" if desc_format == "bullets" else "desc_paragraph"
     ]
 
+    format_instructions = generate_description_format(config)
+
     prompt = textwrap.dedent(
         f"""
         Você é um especialista em Git. 
-        Analise o diff e crie uma mensagem de commit
-        Siga essas regras:
+        Analise o diff e crie uma mensagem de commit seguindo RIGOROSAMENTE estas regras:
 
-        Formato:
-        type: short and clear description (max {config['commit_message']['max_length']} caracteres)
-        {LANGUAGE_INSTRUCTIONS[commit_lang]['commit']}
+        Primeira linha (título do commit):
+        - type: short and clear description (max {config['commit_message']['max_length']} caracteres)
+        - {LANGUAGE_INSTRUCTIONS[commit_lang]['commit']}
 
         Tipos permitidos com seus emojis:
         {commit_types_examples}
 
-        Descrição:
+        Descrição detalhada:
         {desc_instructions}
-        {generate_description_format(config)}
 
-        Regras:
+        {format_instructions}
+
+        Regras gerais:
         1. Use verbos no imperativo
         2. Não termine com ponto
         3. Seja específico mas conciso
-        4. Se tiver vários arquivos, foque na mudança principal
+        4. Se tiver vários arquivos, mencione cada um e suas alterações
         5. Use APENAS os tipos listados acima
         6. NÃO inclua o emoji na mensagem, ele será adicionado automaticamente
+        7. SEMPRE siga o formato de descrição especificado (bullets ou parágrafos)
+        8. SEMPRE use o idioma especificado para cada parte
 
+        Estilo adicional:
         {style_info['prompt_extra']}
 
         Retorne APENAS a mensagem, sem explicações ou aspas.
