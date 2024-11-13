@@ -37,7 +37,7 @@ STYLES = {
         """,
     },
     "poeta": {
-        "description": "Mensagens em estilo poético e lírico",
+        "description": "Mensagens com um toque poético e lírico",
         "prompt_extra": """
         Crie mensagens com um toque poético e lírico, mas mantendo a clareza.
         Use metáforas suaves e linguagem elegante.
@@ -68,6 +68,7 @@ DEFAULT_CONFIG = {
         "max_paragraph_length": 300,
         "language": "pt-BR",
     },
+    "editor": {"command": "code", "args": ["--wait"], "fallback": {"command": "nano", "args": []}},
     "shell_alias": "sca",
 }
 
@@ -159,6 +160,63 @@ def clean_blackbox_message(message):
             message = f"{commit_type} {emoji}: {message[len(commit_type)+1:].lstrip()}"
             break
     return message
+
+
+def get_editor_command(config):
+    """Determina o comando do editor a ser usado"""
+    editor_config = config.get("editor", DEFAULT_CONFIG["editor"])
+
+    # Tenta o editor configurado
+    command = editor_config["command"]
+    args = editor_config.get("args", [])
+
+    # Verifica se o comando principal está disponível
+    try:
+        subprocess.run([command, "--version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return command, args
+    except (subprocess.SubprocessError, FileNotFoundError):
+        # Se o comando principal falhar, tenta o fallback
+        fallback = editor_config.get("fallback", {"command": "vim", "args": []})
+        try:
+            subprocess.run([fallback["command"], "--version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            return fallback["command"], fallback.get("args", [])
+        except (subprocess.SubprocessError, FileNotFoundError):
+            # Se também falhar, tenta variáveis de ambiente
+            env_editor = os.getenv("VISUAL") or os.getenv("EDITOR") or "vim"
+            return env_editor, []
+
+
+def edit_message(message, config):
+    """Abre a mensagem no editor configurado para edição"""
+    tmp_file = os.path.expanduser("~/.git_commit_msg_tmp")
+    editor_command, editor_args = get_editor_command(config)
+
+    try:
+        with open(tmp_file, "w") as f:
+            f.write(message)
+
+        # Monta o comando completo
+        cmd = [editor_command] + editor_args + [tmp_file]
+        print(f"🖊️  Abrindo com: {' '.join(cmd)}")
+
+        # Executa o editor
+        process = subprocess.run(cmd, check=True)
+
+        if process.returncode == 0:
+            with open(tmp_file, "r") as f:
+                edited_message = f.read().strip()
+            return edited_message
+        return None
+    except subprocess.CalledProcessError:
+        print(f"❌ Erro ao abrir o editor {editor_command}")
+        print("💡 Você pode configurar outro editor no arquivo .gscrc")
+        return None
+    except Exception as e:
+        print(f"❌ Erro ao editar a mensagem: {str(e)}")
+        return None
+    finally:
+        if os.path.exists(tmp_file):
+            os.remove(tmp_file)
 
 
 def generate_description_format(config):
@@ -283,20 +341,36 @@ def main():
     if commit_msg:
         print("\n📝 Sugestão de mensagem:\n")
         print(commit_msg)
-        response = input("\nDeseja usar esta mensagem? [Y/n] ").strip().lower()
+        while True:
+            response = input("\nDeseja usar esta mensagem? [Y/n/e] ").strip().lower()
 
-        if response in ["y", "yes", ""]:
-            tmp_file = os.path.expanduser("~/.git_commit_msg_tmp")
-            with open(tmp_file, "w") as f:
-                f.write(commit_msg)
-            try:
-                subprocess.run(["git", "commit", "-F", tmp_file], check=True)
-                print("✅ Commit realizado com sucesso!")
-            except subprocess.CalledProcessError:
-                print("❌ Erro ao realizar o commit")
-            os.remove(tmp_file)
-        else:
-            print("❌ Commit cancelado")
+            if response in ["y", "yes", ""]:
+                tmp_file = os.path.expanduser("~/.git_commit_msg_tmp")
+                with open(tmp_file, "w") as f:
+                    f.write(commit_msg)
+                try:
+                    subprocess.run(["git", "commit", "-F", tmp_file], check=True)
+                    print("✅ Commit realizado com sucesso!")
+                except subprocess.CalledProcessError:
+                    print("❌ Erro ao realizar o commit")
+                os.remove(tmp_file)
+                break
+            elif response == "e":
+                print("\n📝 Abrindo mensagem para edição...")
+                edited_msg = edit_message(commit_msg, config)
+                if edited_msg:
+                    print("\n📝 Mensagem editada:\n")
+                    print(edited_msg)
+                    commit_msg = edited_msg
+                    continue
+                else:
+                    print("❌ Falha ao editar a mensagem")
+                    sys.exit(1)
+            elif response in ["n", "no"]:
+                print("❌ Commit cancelado")
+                break
+            else:
+                print("⚠️  Opção inválida. Use Y para confirmar, n para cancelar ou e para editar.")
     else:
         print("❌ Não foi possível gerar a mensagem")
         sys.exit(1)
