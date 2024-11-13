@@ -341,18 +341,19 @@ def main():
     commit_msg = generate_commit_message(diff, recent_commits, args.estilo, config)
 
     if commit_msg:
-        print("\n📝 Sugestão de mensagem:\n")
-        print(commit_msg)
+        while True:
+            print("\n📝 Sugestão de mensagem:\n")
+            print(commit_msg)
 
-        if args.accept:
-            print("\n💣 Aceitando automáticamente a mensagem de commit!")
-            response = "y"
-        else:
-            try:
-                response = input("\n🤔 Deseja usar esta mensagem? [Y/n] ").strip().lower()
-            except KeyboardInterrupt:
-                print("\nOperação cancelada pelo usuário.")
-                response = "n"
+            if args.accept:
+                print("\n💣 Aceitando automáticamente a mensagem de commit!")
+                response = "y"
+            else:
+                try:
+                    response = input("\n🤔 Deseja usar esta mensagem? [Y/n/e] ").strip().lower()
+                except KeyboardInterrupt:
+                    print("\nOperação cancelada pelo usuário.")
+                    sys.exit(0)
 
             if response in ["y", "yes", ""]:
                 tmp_file = os.path.expanduser("~/.git_commit_msg_tmp")
@@ -363,7 +364,8 @@ def main():
                     print("✅ Commit realizado com sucesso!")
                 except subprocess.CalledProcessError:
                     print("❌ Erro ao realizar o commit")
-                os.remove(tmp_file)
+                finally:
+                    os.remove(tmp_file)
                 break
             elif response == "e":
                 print("\n📝 Abrindo mensagem para edição...")
@@ -378,7 +380,7 @@ def main():
                     sys.exit(1)
             elif response in ["n", "no"]:
                 print("❌ Commit cancelado")
-                break
+                sys.exit(0)
             else:
                 print("⚠️  Opção inválida. Use Y para confirmar, n para cancelar ou e para editar.")
     else:
