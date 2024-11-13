@@ -127,6 +127,8 @@ def parse_arguments():
             f"--{style}", action="store_const", const=style, dest="estilo", help=STYLES[style]["description"]
         )
     parser.add_argument("--list", action="store_true", help="Lista todos os estilos disponíveis")
+    parser.add_argument("--accept", action="store_true", help="Aceita automaticamente a mensagem criada")
+
     args = parser.parse_args()
     if not args.estilo:
         args.estilo = "padrao"
@@ -341,8 +343,16 @@ def main():
     if commit_msg:
         print("\n📝 Sugestão de mensagem:\n")
         print(commit_msg)
-        while True:
-            response = input("\nDeseja usar esta mensagem? [Y/n/e] ").strip().lower()
+
+        if args.accept:
+            print("\n💣 Aceitando automáticamente a mensagem de commit!")
+            response = "y"
+        else:
+            try:
+                response = input("\n🤔 Deseja usar esta mensagem? [Y/n] ").strip().lower()
+            except KeyboardInterrupt:
+                print("\nOperação cancelada pelo usuário.")
+                response = "n"
 
             if response in ["y", "yes", ""]:
                 tmp_file = os.path.expanduser("~/.git_commit_msg_tmp")
