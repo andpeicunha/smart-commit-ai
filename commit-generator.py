@@ -117,7 +117,10 @@ def create_default_config():
         with open(config_path, "w") as f:
             json.dump(DEFAULT_CONFIG, f, indent=2)
         print(f"✨ Arquivo de configuração criado em {config_path}")
-        print("Você pode editar este arquivo para personalizar o comportamento do gerador de commits.")
+        print(
+            "Você pode editar este arquivo para personalizar o comportamento do gerador de commits."
+            "\nConsulte o Readme em: https://github.com/andpeicunha/smart-commit-ai"
+        )
 
 
 def parse_arguments():
@@ -126,8 +129,8 @@ def parse_arguments():
         parser.add_argument(
             f"--{style}", action="store_const", const=style, dest="estilo", help=STYLES[style]["description"]
         )
-    parser.add_argument("--list", action="store_true", help="Lista todos os estilos disponíveis")
-    parser.add_argument("--accept", action="store_true", help="Aceita automaticamente a mensagem criada")
+    parser.add_argument("--list", "-L", action="store_true", help="Lista todos os estilos disponíveis")
+    parser.add_argument("--accept", "-A", action="store_true", help="Aceita automaticamente a mensagem criada")
 
     args = parser.parse_args()
     if not args.estilo:
