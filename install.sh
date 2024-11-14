@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Cores para output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -40,12 +39,21 @@ if [ ! -d "$SCRIPTS_DIR" ]; then
     mkdir -p "$SCRIPTS_DIR"
 fi
 
+# Criar ambiente virtual
+VENV_DIR="$HOME/.venv-gsc"
+if [ ! -d "$VENV_DIR" ]; then
+    echo -e "${BLUE}📁 Criando ambiente virtual em $VENV_DIR...${NC}"
+    python3 -m venv "$VENV_DIR"
+fi
+
+# Instalar dependências no ambiente virtual
+echo -e "${BLUE}📦 Instalando dependências Python...${NC}"
+"$VENV_DIR/bin/pip" install g4f --quiet
+
 # Download do arquivo Python diretamente do GitHub
 COMMIT_GENERATOR="$SCRIPTS_DIR/commit-generator.py"
 echo -e "${BLUE}📝 Baixando script em $COMMIT_GENERATOR...${NC}"
-
 GITHUB_RAW_URL="https://raw.githubusercontent.com/andpeicunha/smart-commit-ai/master/commit-generator.py"
-
 if ! curl -fsSL "$GITHUB_RAW_URL" -o "$COMMIT_GENERATOR"; then
     echo -e "${RED}❌ Erro ao baixar o script. Verifique sua conexão ou se o repositório está acessível.${NC}"
     exit 1
@@ -53,16 +61,6 @@ fi
 
 # Tornar o script executável
 chmod +x "$COMMIT_GENERATOR"
-
-# Verificar se python3 está instalado
-if ! command -v python3 &> /dev/null; then
-    echo -e "${RED}❌ Python 3 não está instalado. Por favor, instale-o primeiro.${NC}"
-    exit 1
-fi
-
-# Instalar dependências do Python
-echo -e "${BLUE}📦 Instalando dependências Python...${NC}"
-pip3 install g4f --quiet
 
 # Remover alias antigo se existir
 if [ -f "$SHELL_RC" ]; then
@@ -72,8 +70,8 @@ else
     touch "$SHELL_RC"
 fi
 
-# Adicionar novo alias
-echo "alias gsc='python3 $COMMIT_GENERATOR'" >> "$SHELL_RC"
+# Adicionar novo alias usando o Python do ambiente virtual
+echo "alias gsc='$VENV_DIR/bin/python3 $COMMIT_GENERATOR'" >> "$SHELL_RC"
 
 echo -e "${GREEN}✅ Instalação concluída!${NC}"
 echo -e "${BLUE}ℹ️  Para começar a usar, recarregue seu terminal ou execute:${NC}"
