@@ -13,16 +13,16 @@ Gerador inteligente de mensagens de commit usando IA para criar commits padroniz
 - Integração fácil com seu fluxo de trabalho git
 - Diferentes estilos de mensagem para tornar seus commits mais divertidos
 
+> ## Importante!
+>
+> O resultado do comando `git diff` e `git log` será enviado para um serviço que fará a análise deste conteúdo para gerar a mensagens!
+
 ## 📋 Pré-requisitos
 
-- Python 3.x
+- Python 3.x _(**Ubuntu 22+** será instalado em Ambiente Virtual as dependências)_
 - Git
 - Terminal Bash ou Zsh
 - Para utilizar, dependerá de uma conexão de internet
-
-## Importante!
-
-O resultado do comando `git diff` e `git log` será enviado para um serviço que fará a análise deste conteúdo para gerar a mensagens!
 
 ## 💻 Instalação
 
