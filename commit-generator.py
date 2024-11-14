@@ -140,9 +140,21 @@ def parse_arguments():
     return args
 
 
-def get_git_diff():
+def git_has_staged_changes():
     try:
-        return subprocess.check_output(["git", "diff", "--cached"], universal_newlines=True)
+        status = subprocess.check_output(["git", "status", "--porcelain"], universal_newlines=True)
+        return any(line.startswith(("A ", "M ", "D ", "R ", "C ")) for line in status.splitlines())
+    except subprocess.CalledProcessError:
+        return False
+
+
+def get_git_diff():
+    if not git_has_staged_changes():
+        print("❌ Não existem mudanças staged para commit")
+        sys.exit(1)
+
+    try:
+        return subprocess.check_output(["git", "diff", "--staged"], universal_newlines=True)
     except subprocess.CalledProcessError:
         return None
 
