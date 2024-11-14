@@ -105,9 +105,11 @@ Exemplo de configuração:
 
 ## 🎯 Como usar
 
-1. Faça suas alterações no código
-2. Adicione as alterações ao stage do git (`git add .`)
-3. Execute o comando:
+**1.** Faça suas alterações no código
+
+**2.** Adicione as alterações ao stage do git usando `git add .`
+
+**3.** Execute o comando:
 
 ```bash
 gsc               # Estilo padrão
@@ -121,17 +123,22 @@ Para ver todos os estilos disponíveis:
 
 ```bash
 gsc --list
+# também pode usar a forma abreviada
+gsc --L
 ```
 
 Para aceitar automaticamente a mensagem de commit
 
 ```bash
 gsc --accept
+# também pode usar a forma abreviada
+gsc --A
 ```
 
 > 💡 O comando `gsc` é um alias no seu shell, portanto NÃO precisa ter o git antes, basta executar dessa forma e ver a mágica acontecer!
 
 4. O script irá analisar suas alterações e vai sugerir uma mensagem de commit
+
 5. Você pode:
    - Pressionar `ENTER` ou digitar `Y` para aceitar a mensagem
    - Digitar `n` para cancelar
