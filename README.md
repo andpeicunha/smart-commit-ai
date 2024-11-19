@@ -124,7 +124,7 @@ Para ver todos os estilos disponíveis:
 ```bash
 gsc --list
 # também pode usar a forma abreviada
-gsc --L
+gsc -L
 ```
 
 Para aceitar automaticamente a mensagem de commit
@@ -132,7 +132,15 @@ Para aceitar automaticamente a mensagem de commit
 ```bash
 gsc --accept
 # também pode usar a forma abreviada
-gsc --A
+gsc -A
+```
+
+Para não gerar a descrição
+
+```bash
+gsc --desc
+# também pode usar a forma abreviada
+gsc -D
 ```
 
 > 💡 O comando `gsc` é um alias no seu shell, portanto NÃO precisa ter o git antes, basta executar dessa forma e ver a mágica acontecer!
