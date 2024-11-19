@@ -117,10 +117,7 @@ def create_default_config():
         with open(config_path, "w") as f:
             json.dump(DEFAULT_CONFIG, f, indent=2)
         print(f"✨ Arquivo de configuração criado em {config_path}")
-        print(
-            "Você pode editar este arquivo para personalizar o comportamento do gerador de commits."
-            "\nConsulte o Readme em: https://github.com/andpeicunha/smart-commit-ai"
-        )
+        print("Você pode editar este arquivo para personalizar o comportamento do gerador de commits.")
 
 
 def parse_arguments():
@@ -131,6 +128,7 @@ def parse_arguments():
         )
     parser.add_argument("--list", "-L", action="store_true", help="Lista todos os estilos disponíveis")
     parser.add_argument("--accept", "-A", action="store_true", help="Aceita automaticamente a mensagem criada")
+    parser.add_argument("--desc", "-D", action="store_true", help="Remove a descrição na mensagem")
 
     args = parser.parse_args()
     if not args.estilo:
@@ -143,21 +141,9 @@ def parse_arguments():
     return args
 
 
-def git_has_staged_changes():
-    try:
-        status = subprocess.check_output(["git", "status", "--porcelain"], universal_newlines=True)
-        return any(line.startswith(("A ", "M ", "D ", "R ", "C ")) for line in status.splitlines())
-    except subprocess.CalledProcessError:
-        return False
-
-
 def get_git_diff():
-    if not git_has_staged_changes():
-        print("❌ Não existem mudanças staged para commit")
-        sys.exit(1)
-
     try:
-        return subprocess.check_output(["git", "diff", "--staged"], universal_newlines=True)
+        return subprocess.check_output(["git", "diff", "--cached"], universal_newlines=True)
     except subprocess.CalledProcessError:
         return None
 
@@ -236,6 +222,50 @@ def edit_message(message, config):
             os.remove(tmp_file)
 
 
+def format_commit_message(message):
+    """
+    Format the commit message with proper spacing and line breaks.
+    Expects format: type emoji: title\n\ndescription
+    """
+    # Split into title and description
+    parts = message.split("\n", 1)
+    title = parts[0].strip()
+    description = parts[1].strip() if len(parts) > 1 else ""
+
+    # Format title - ensure proper spacing around emoji
+    title_parts = title.split(":", 1)
+    if len(title_parts) == 2:
+        type_and_emoji = title_parts[0].strip()
+        title_text = title_parts[1].strip()
+
+        # Ensure space between type and emoji
+        type_emoji = " ".join(type_and_emoji.split())
+
+        title = f"{type_emoji}: {title_text}"
+
+    # Format description - normalize spacing and line breaks
+    if description:
+        # Convert runs of whitespace to single spaces
+        description = " ".join(description.split())
+
+        # Add proper line breaks for bullet points
+        if "-" in description:
+            description = description.replace(" - ", "\n- ")
+            if not description.startswith("-"):
+                description = f"\n{description}"
+
+        # Wrap long lines
+        if not description.startswith("-"):
+            description = textwrap.fill(description, width=80)
+
+    # Combine title and description
+    final_message = title
+    if description:
+        final_message = f"{title}\n\n{description}"
+
+    return final_message
+
+
 def generate_description_format(config):
     desc_format = config["description"]["format"]
     if desc_format == "bullets":
@@ -307,35 +337,33 @@ def generate_commit_message(diff, recent_commits, style, config):
 
     try:
         client = Client()
+        from g4f.Provider import DDG
+
         response = client.chat.completions.create(
-            model="claude-3.5-sonnet",
-            provider=Blackbox,
+            model="gpt-4o-mini",
+            provider=DDG,
             messages=[
                 {"role": "system", "content": prompt},
                 {"role": "user", "content": f"Recent commits:\n{recent_commits}"},
                 {"role": "user", "content": f"Changes:\n{diff}"},
             ],
         )
-        return clean_blackbox_message(response.choices[0].message.content.strip())
-    except Exception as primary_error:
-        print(f"Erro ao gerar mensagem: {str(primary_error)}")
-        print("\nTentando provider alternativo...")
-        try:
-            from g4f.Provider import Bing
 
-            response = client.chat.completions.create(
-                model="gpt-4",
-                provider=Bing,
-                messages=[
-                    {"role": "system", "content": prompt},
-                    {"role": "user", "content": f"Recent commits:\n{recent_commits}"},
-                    {"role": "user", "content": f"Changes:\n{diff}"},
-                ],
-            )
-            return clean_blackbox_message(response.choices[0].message.content.strip())
-        except Exception as e:
-            print(f"Erro no provider alternativo: {str(e)}")
-            return None
+        # print("\n=== RESPOSTA ORIGINAL DA IA ===")
+        # print(response.choices[0].message.content)
+        # print("\n=== APÓS STRIP ===")
+        # print(response.choices[0].message.content.strip())
+        # print("\n=== APÓS CLEAN_BLACKBOX ===")
+        # print(clean_blackbox_message(response.choices[0].message.content.strip()))
+        # print("============================\n")
+
+        raw_message = response.choices[0].message.content.strip()
+        # formatted_message = format_commit_message(raw_message)  # Add this line
+        return clean_blackbox_message(raw_message)
+
+    except Exception as e:
+        print(f"Erro no provider: {str(e)}")
+        return None
 
 
 def main():
