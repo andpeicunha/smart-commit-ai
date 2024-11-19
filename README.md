@@ -24,6 +24,12 @@ Gerador inteligente de mensagens de commit usando IA para criar commits padroniz
 
 O resultado do comando `git diff` e `git log` será enviado para um serviço que fará a análise deste conteúdo para gerar a mensagens!
 
+## AI Recomendada
+
+_Estava usando o `Blackbox` com `gpt-4o`, mas começei e ter problemas no retorno das mensagens, com textos truncados._
+
+Com base nos testes, nesse momento recomento Provider: `FreeGpt` e Model: `gemini-pro` **[19/11/2024]**
+
 ## 💻 Instalação
 
 1. Baixe o script de instalação:
@@ -75,7 +81,11 @@ Exemplo de configuração:
       "args": []
     }
   },
-  "shell_alias": "sca"
+  "shell_alias": "sca",
+  "ai": {
+    "provider": "FreeGpt",
+    "model": "gemini-pro"
+  }
 }
 ```
 
@@ -97,9 +107,15 @@ Exemplo de configuração:
   - `language`: Idioma ("en-US" ou "pt-BR")
 
 - **editor**: Configurações do editor para edição de mensagens
+
   - `command`: Comando do editor (ex: "code", "vim", "nano")
   - `args`: Argumentos adicionais do editor
   - `fallback`: Editor alternativo caso o principal falhe
+
+- **ai**: Configurações sobre a AI que você deseja usar
+  > Para alterar o Provider basta <a href="https://github.com/xtekky/gpt4free/blob/0.3.4.7/docs/providers-and-models.md#providers" target="_blank">acessar aqui</a> e escolher o Provider e Modelo que deseja usar
+  - `provider`: Veja qual provider tem o modelo que deseja (`g4f.Provider.Airforce` = `Airforce`)
+  - `model`: Defina qual o modelo de IA quer usar para o provedor escolhido
 
 <br/>
 
