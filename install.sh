@@ -30,26 +30,24 @@ case $shell_choice in
         ;;
 esac
 
-echo -e "${BLUE}🛠️  Configurando para $SHELL_NAME ($SHELL_RC)${NC}"
+echo -e "${BLUE}🛠️  Configurando para $SHELL_NAME (${SHELL_RC})${NC}"
 
 # Criar diretório de scripts se não existir
 SCRIPTS_DIR="$HOME/scripts"
 if [ ! -d "$SCRIPTS_DIR" ]; then
-    echo -e "${BLUE}📁 Criando diretório $SCRIPTS_DIR...${NC}"
+    echo -e "${BLUE}📁 Criando diretório ${SCRIPTS_DIR}...${NC}"
     mkdir -p "$SCRIPTS_DIR"
 fi
 
 # Criar ambiente virtual
 VENV_DIR="$HOME/.venv-gsc"
 if [ ! -d "$VENV_DIR" ]; then
-    echo -e "${BLUE}📁 Criando ambiente virtual em $VENV_DIR...${NC}"
+    echo -e "${BLUE}📁 Criando ambiente virtual em ${VENV_DIR}...${NC}"
     python3 -m venv "$VENV_DIR"
 fi
 
 # Instalar dependências no ambiente virtual
 echo -e "${BLUE}📦 Instalando dependências Python...${NC}"
-# windows: "$VENV_DIR/Scripts/pip" install g4f --quiet
-# others: "$VENV_DIR/bin/pip" install g4f --quiet
 if [ -f "$VENV_DIR/Scripts/pip" ]; then
     "$VENV_DIR/Scripts/pip" install g4f --quiet
 else
@@ -58,7 +56,7 @@ fi
 
 # Download do arquivo Python diretamente do GitHub
 COMMIT_GENERATOR="$SCRIPTS_DIR/commit-generator.py"
-echo -e "${BLUE}📝 Baixando script em $COMMIT_GENERATOR...${NC}"
+echo -e "${BLUE}📝 Baixando script em ${COMMIT_GENERATOR}...${NC}"
 GITHUB_RAW_URL="https://raw.githubusercontent.com/andpeicunha/smart-commit-ai/master/commit-generator.py"
 if ! curl -fsSL "$GITHUB_RAW_URL" -o "$COMMIT_GENERATOR"; then
     echo -e "${RED}❌ Erro ao baixar o script. Verifique sua conexão ou se o repositório está acessível.${NC}"
@@ -72,14 +70,20 @@ chmod +x "$COMMIT_GENERATOR"
 if [ -f "$SHELL_RC" ]; then
     sed -i '/alias gsc=/d' "$SHELL_RC"
 else
-    echo -e "${BLUE}📝 Criando arquivo $SHELL_RC...${NC}"
+    echo -e "${BLUE}📝 Criando arquivo ${SHELL_RC}...${NC}"
     touch "$SHELL_RC"
 fi
 
 # Adicionar novo alias usando o Python do ambiente virtual
-echo "alias gsc='$VENV_DIR/bin/python3 $COMMIT_GENERATOR'" >> "$SHELL_RC"
+#windows echo "alias gsc='\"$VENV_DIR/Scripts/python\" \"$COMMIT_GENERATOR\"'" >> "$SHELL_RC"
+#others echo "alias gsc='\"$VENV_DIR/bin/python3\" \"$COMMIT_GENERATOR\"'" >> "$SHELL_RC"
+if [ -f "$VENV_DIR/Scripts/python" ]; then
+    echo "alias gsc='\"$VENV_DIR/Scripts/python\" \"$COMMIT_GENERATOR\"'" >> "$SHELL_RC"
+else
+    echo "alias gsc='\"$VENV_DIR/bin/python3\" \"$COMMIT_GENERATOR\"'" >> "$SHELL_RC"
+fi
 
 echo -e "${GREEN}✅ Instalação concluída!${NC}"
 echo -e "${BLUE}ℹ️  Para começar a usar, recarregue seu terminal ou execute:${NC}"
-echo -e "   source $SHELL_RC"
+echo -e "   source \"$SHELL_RC\""
 echo -e "${BLUE}ℹ️  Depois, use o comando${NC} gsc ${BLUE}dentro de um repositório git${NC}"
