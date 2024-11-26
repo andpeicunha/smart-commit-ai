@@ -48,7 +48,13 @@ fi
 
 # Instalar dependências no ambiente virtual
 echo -e "${BLUE}📦 Instalando dependências Python...${NC}"
-"$VENV_DIR/bin/pip" install g4f --quiet
+# windows: "$VENV_DIR/Scripts/pip" install g4f --quiet
+# others: "$VENV_DIR/bin/pip" install g4f --quiet
+if [ -f "$VENV_DIR/Scripts/pip" ]; then
+    "$VENV_DIR/Scripts/pip" install g4f --quiet
+else
+    "$VENV_DIR/bin/pip" install g4f --quiet
+fi
 
 # Download do arquivo Python diretamente do GitHub
 COMMIT_GENERATOR="$SCRIPTS_DIR/commit-generator.py"
