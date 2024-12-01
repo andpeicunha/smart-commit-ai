@@ -56,9 +56,12 @@ fi
 
 # Download do arquivo Python diretamente do GitHub
 COMMIT_GENERATOR="$SCRIPTS_DIR/commit-generator.py"
-echo -e "${BLUE}📝 Copiando script em ${COMMIT_GENERATOR}...${NC}"
-SOURCE_COMMIT_GENERATOR="./commit-generator.py"
-cp "$SOURCE_COMMIT_GENERATOR" "$COMMIT_GENERATOR"
+echo -e "${BLUE}📝 Baixando script em ${COMMIT_GENERATOR}...${NC}"
+GITHUB_RAW_URL="https://raw.githubusercontent.com/andpeicunha/smart-commit-ai/master/commit-generator.py"
+if ! curl -fsSL "$GITHUB_RAW_URL" -o "$COMMIT_GENERATOR"; then
+    echo -e "${RED}❌ Erro ao baixar o script. Verifique sua conexão ou se o repositório está acessível.${NC}"
+    exit 1
+fi
 
 # Tornar o script executável
 chmod +x "$COMMIT_GENERATOR"
@@ -91,7 +94,6 @@ else
     echo "alias gsc='\"$VENV_DIR/bin/python3\" \"$COMMIT_GENERATOR\"'" >> "$SHELL_RC"
 fi
 
-# Copiar arquivo de configuração
 cp .gscrc ~/
 
 echo -e "${GREEN}✅ Instalação concluída!${NC}"

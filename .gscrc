@@ -12,7 +12,9 @@
   },
   "editor": {
     "command": "code",
-    "args": ["--wait"],
+    "args": [
+      "--wait"
+    ],
     "fallback": {
       "command": "vim",
       "args": []
@@ -20,7 +22,7 @@
   },
   "shell_alias": "sca",
   "ai": {
-    "provider": "FreeGpt",
+    "provider": "Blackbox",
     "model": "gemini-pro"
   }
 }
