@@ -1,0 +1,26 @@
+{
+  "commit_message": {
+    "max_length": 50,
+    "language": "en-US"
+  },
+  "description": {
+    "format": "bullets",
+    "max_bullets": 3,
+    "max_bullet_length": 100,
+    "max_paragraph_length": 300,
+    "language": "pt-BR"
+  },
+  "editor": {
+    "command": "code",
+    "args": ["--wait"],
+    "fallback": {
+      "command": "vim",
+      "args": []
+    }
+  },
+  "shell_alias": "sca",
+  "ai": {
+    "provider": "FreeGpt",
+    "model": "gemini-pro"
+  }
+}

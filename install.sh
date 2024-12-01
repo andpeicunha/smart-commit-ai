@@ -56,12 +56,9 @@ fi
 
 # Download do arquivo Python diretamente do GitHub
 COMMIT_GENERATOR="$SCRIPTS_DIR/commit-generator.py"
-echo -e "${BLUE}📝 Baixando script em ${COMMIT_GENERATOR}...${NC}"
-GITHUB_RAW_URL="https://raw.githubusercontent.com/andpeicunha/smart-commit-ai/master/commit-generator.py"
-if ! curl -fsSL "$GITHUB_RAW_URL" -o "$COMMIT_GENERATOR"; then
-    echo -e "${RED}❌ Erro ao baixar o script. Verifique sua conexão ou se o repositório está acessível.${NC}"
-    exit 1
-fi
+echo -e "${BLUE}📝 Copiando script em ${COMMIT_GENERATOR}...${NC}"
+SOURCE_COMMIT_GENERATOR="./commit-generator.py"
+cp "$SOURCE_COMMIT_GENERATOR" "$COMMIT_GENERATOR"
 
 # Tornar o script executável
 chmod +x "$COMMIT_GENERATOR"
@@ -75,13 +72,27 @@ else
 fi
 
 # Adicionar novo alias usando o Python do ambiente virtual
-#windows echo "alias gsc='\"$VENV_DIR/Scripts/python\" \"$COMMIT_GENERATOR\"'" >> "$SHELL_RC"
-#others echo "alias gsc='\"$VENV_DIR/bin/python3\" \"$COMMIT_GENERATOR\"'" >> "$SHELL_RC"
 if [ -f "$VENV_DIR/Scripts/python" ]; then
-    echo "alias gsc='\"$VENV_DIR/Scripts/python\" \"$COMMIT_GENERATOR\"'" >> "$SHELL_RC"
+    echo -e "${BLUE}📝 Configurando para Windows...${NC}"
+    # Resolver caminho no Windows copiando Scripts para bin (se necessário)
+    if [ ! -d "$VENV_DIR/bin" ]; then
+        echo -e "${BLUE}📁 Criando diretório 'bin' no ambiente virtual...${NC}"
+        mkdir "$VENV_DIR/bin"
+    fi
+
+    cp -r "$VENV_DIR/Scripts/"* "$VENV_DIR/bin/"
+    if [ ! -f "$VENV_DIR/bin/python3" ]; then
+        mv "$VENV_DIR/bin/python" "$VENV_DIR/bin/python3"
+    fi
+
+    echo "alias gsc='\"$VENV_DIR/bin/python3\" \"$COMMIT_GENERATOR\"'" >> "$SHELL_RC"
 else
+    echo -e "${BLUE}📝 Configurando para outros sistemas operacionais...${NC}"
     echo "alias gsc='\"$VENV_DIR/bin/python3\" \"$COMMIT_GENERATOR\"'" >> "$SHELL_RC"
 fi
+
+# Copiar arquivo de configuração
+cp .gscrc ~/
 
 echo -e "${GREEN}✅ Instalação concluída!${NC}"
 echo -e "${BLUE}ℹ️  Para começar a usar, recarregue seu terminal ou execute:${NC}"
