@@ -118,7 +118,7 @@ def deep_update(target, source):
 def create_default_config():
     config_path = Path.home() / ".gscrc"
     if not config_path.exists():
-        with open(config_path, "w") as f:
+        with open(config_path, "w", encoding="utf-8") as f:
             json.dump(DEFAULT_CONFIG, f, indent=2)
         print(f"✨ Arquivo de configuração criado em {config_path}")
         print("Você pode editar este arquivo para personalizar o comportamento do gerador de commits.")
@@ -148,14 +148,13 @@ def parse_arguments():
 
 def get_git_diff():
     try:
-        return subprocess.check_output(["git", "diff", "--cached"], universal_newlines=True)
+        return subprocess.check_output(["git", "diff", "--cached"], text=True, encoding="utf-8")
     except subprocess.CalledProcessError:
         return None
 
-
 def get_recent_commits(num=3):
     try:
-        return subprocess.check_output(["git", "log", f"-{num}", "--pretty=format:%B"], universal_newlines=True)
+        return subprocess.check_output(["git", "log", f"-{num}", "--pretty=format:%B"], text=True, encoding="utf-8")
     except subprocess.CalledProcessError:
         return None
 
@@ -225,7 +224,7 @@ def edit_message(message, config):
     editor_command, editor_args = get_editor_command(config)
 
     try:
-        with open(tmp_file, "w") as f:
+        with open(tmp_file, "w", encoding="utf-8") as f:
             f.write(message)
 
         # Monta o comando completo
@@ -350,13 +349,13 @@ def generate_commit_message(diff, recent_commits, style, config, args):
         Regras gerais:
         1. Use verbos no imperativo
         2. Para o descritivo sempre use o imperativo no passado, por exemplo, adicionei, inseri, coloquei
-        2. Não termine com ponto
-        3. Seja específico mas conciso
-        4. Se tiver vários arquivos, mencione cada um e suas alterações
-        5. Use APENAS os tipos listados acima
-        6. NÃO inclua o emoji na mensagem, ele será adicionado automaticamente
-        7. SEMPRE siga o formato de descrição especificado (bullets ou parágrafos)
-        8. SEMPRE use o idioma especificado para cada parte
+        3. Não termine com ponto
+        4. Seja específico mas conciso
+        5. Se tiver vários arquivos, mencione cada um e suas alterações
+        6. Use APENAS os tipos listados acima
+        7. NÃO inclua o emoji na mensagem, ele será adicionado automaticamente
+        8. SEMPRE siga o formato de descrição especificado (bullets ou parágrafos)
+        9. SEMPRE use o idioma especificado para cada parte
 
         Estilo adicional:
         {style_info['prompt_extra']}
@@ -373,31 +372,29 @@ def generate_commit_message(diff, recent_commits, style, config, args):
 
     try:
         client = Client()
-        provider_name = config["ai"]["provider"]
+        provider_name = config["ai"].get("provider", "FreeGpt")
+        model = config["ai"].get("model", "gemini-pro")
+        print(f"🧠 Usando provedor de IA: {provider_name}, modelo: {model}")
+
         try:
             provider_module = __import__("g4f.Provider", fromlist=[provider_name])
             provider_class = getattr(provider_module, provider_name)
         except (ImportError, AttributeError) as e:
-            print(f"⚠️  Provider {provider_name} não encontrado. Usando FreeGpt como fallback.")
+            print(f"⚠️  Erro ao carregar o provedor {provider_name}. Usando FreeGpt como fallback.")
             from g4f.Provider import FreeGpt
-
             provider_class = FreeGpt
 
         response = client.chat.completions.create(
-            model=config["ai"]["model"],
+            model=model,
             provider=provider_class,
-            messages=[
-                {"role": "system", "content": prompt},
-                {"role": "user", "content": f"Recent commits:\n{recent_commits}"},
-                {"role": "user", "content": f"Changes:\n{diff}"},
-            ],
+            messages=[{"role": "system", "content": prompt}],
         )
 
         raw_message = response.choices[0].message.content.strip()
         return clean_blackbox_message(raw_message, args)
 
     except Exception as e:
-        print(f"Erro no provider: {str(e)}")
+        print(f"❌ Erro no provider ou na geração da mensagem: {str(e)}")
         return None
 
 
@@ -439,7 +436,7 @@ def main():
 
             if response in ["y", "yes", ""]:
                 tmp_file = os.path.expanduser("~/.git_commit_msg_tmp")
-                with open(tmp_file, "w") as f:
+                with open(tmp_file, "w", encoding="utf-8") as f:
                     f.write(commit_msg)
                 try:
                     subprocess.run(["git", "commit", "-F", tmp_file], check=True)
